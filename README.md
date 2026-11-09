@@ -57,9 +57,9 @@ They override bundled templates with the same name.
 
 ## Templates
 
-23 templates are bundled (Python, Node, Java, Go, Rust, C, C++, C#, Ruby, PHP, Swift, Kotlin, Dart, Docker, VSCode, JetBrains, macOS, Windows, Linux, Android, Unity, LaTeX, R).
+**All 248 official templates are bundled** in `gig/templates/` (from the MIT-licensed [github/gitignore](https://github.com/github/gitignore) collection) — the tool works fully offline out of the box.
 
-Run **`gig update`** once to download all ~230+ official templates from the MIT-licensed [github/gitignore](https://github.com/github/gitignore) collection into `~/.gig-cli/templates/` — a single tarball request (or `gig update --via-git` to use `git clone --depth 1` instead). Works with any internet connection, and custom templates override bundled ones.
+Run **`gig update`** to refresh them with the latest upstream version (single tarball request, or `gig update --via-git` to use `git clone --depth 1` instead); downloaded templates go to `~/.gig-cli/templates/` and override bundled ones.
 
 ## Development
 

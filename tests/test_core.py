@@ -31,8 +31,8 @@ def test_generate_combines_and_dedups(monkeypatch, tmp_path):
     assert "# ===== python =====" in out
     assert "# ===== node =====" in out
     assert "node_modules/" in out
-    # .DS_Store appears in both bundled templates but must appear only once
-    assert out.count(".DS_Store") == 1
+    # .env appears in both official templates but must appear only once
+    assert [l.strip() for l in out.splitlines()].count(".env") == 1
 
 
 def test_generate_alias():
