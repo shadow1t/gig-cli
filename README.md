@@ -33,6 +33,9 @@ gig gen docker -o --append
 
 # Interactive mode: pick templates by number
 gig init
+
+# Download ALL official templates from github/gitignore (one request, ~230+ templates)
+gig update
 ```
 
 ### Aliases
@@ -49,11 +52,11 @@ Drop your own `*.gitignore` files into:
 
 They override bundled templates with the same name.
 
-## Bundled templates
+## Templates
 
-Python, Node, Java, Go, Rust, C, C++, C#, Ruby, PHP, Swift, Kotlin, Dart/Flutter, Docker, VSCode, JetBrains, macOS, Windows, Linux, Android, Unity, LaTeX, R.
+23 templates are bundled (Python, Node, Java, Go, Rust, C, C++, C#, Ruby, PHP, Swift, Kotlin, Dart, Docker, VSCode, JetBrains, macOS, Windows, Linux, Android, Unity, LaTeX, R).
 
-Templates are adapted from the MIT-licensed [github/gitignore](https://github.com/github/gitignore) collection.
+Run **`gig update`** once to download all ~230+ official templates from the MIT-licensed [github/gitignore](https://github.com/github/gitignore) collection into `~/.gig-cli/templates/` — a single tarball request, works with any internet connection, and custom templates override bundled ones.
 
 ## Development
 

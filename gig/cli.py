@@ -6,8 +6,13 @@ from . import __version__, core
 
 def _cmd_list(args) -> int:
     templates = core.available_templates()
+    if core.USER_TEMPLATES_DIR.is_dir():
+        custom = {core._normalize_name(core._strip_name(p.name)) for p in core.USER_TEMPLATES_DIR.glob("*.gitignore")}
+    else:
+        custom = set()
     for name in sorted(templates):
-        print(name)
+        marker = " (custom)" if name in custom else ""
+        print(name + marker)
     print(f"\n{len(templates)} templates available.", file=sys.stderr)
     return 0
 
@@ -67,6 +72,18 @@ def _cmd_init(args) -> int:
     return 0
 
 
+def _cmd_update(args) -> int:
+    print("downloading official templates from github/gitignore ...", file=sys.stderr)
+    try:
+        fetched, new, total = core.update_user_templates()
+    except Exception as exc:
+        print(f"error: update failed: {exc}", file=sys.stderr)
+        return 1
+    print(f"fetched {fetched} templates ({new} new) -> {core.USER_TEMPLATES_DIR}", file=sys.stderr)
+    print(f"total templates now available: {total}", file=sys.stderr)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="gig",
@@ -95,6 +112,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_init = sub.add_parser("init", help="interactive mode: pick templates by number")
     p_init.add_argument("--append", action="store_true", help="append to existing .gitignore")
     p_init.set_defaults(func=_cmd_init)
+
+    p_update = sub.add_parser("update", help="download all official templates from github/gitignore (~/.gig-cli/templates)")
+    p_update.set_defaults(func=_cmd_update)
 
     return parser
 

@@ -1,3 +1,6 @@
+import io
+import tarfile
+
 import pytest
 
 from gig import core
@@ -54,3 +57,57 @@ def test_write_gitignore(tmp_path):
     core.write_gitignore("*.tmp\n", path=target, append=True)
     assert "*.log" in target.read_text()
     assert "*.tmp" in target.read_text()
+
+
+def test_normalize_name():
+    assert core._normalize_name("C++") == "cpp"
+    assert core._normalize_name("C#") == "csharp"
+    assert core._normalize_name("Python") == "python"
+
+
+def _make_fake_tarball() -> bytes:
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        for path, content in [
+            ("gitignore-main/Python.gitignore", "__pycache__/\n"),
+            ("gitignore-main/C++.gitignore", "*.o\n"),
+            ("gitignore-main/Global/macOS.gitignore", ".DS_Store\n"),
+            ("gitignore-main/README.md", "not a template"),
+        ]:
+            info = tarfile.TarInfo(path)
+            data = content.encode()
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+    return buf.getvalue()
+
+
+def test_fetch_official_templates_parses_tarball(monkeypatch):
+    def fake_urlopen(request, timeout=0):
+        class Resp:
+            def read(self):
+                return _make_fake_tarball()
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        return Resp()
+
+    monkeypatch.setattr(core.urllib.request, "urlopen", fake_urlopen)
+    templates = core.fetch_official_templates()
+    assert templates["python"] == "__pycache__/\n"
+    assert templates["cpp"] == "*.o\n"
+    assert templates["global-macos"] == ".DS_Store\n"
+    assert "readme" not in templates
+
+
+def test_update_user_templates(monkeypatch, tmp_path):
+    monkeypatch.setattr(core, "USER_TEMPLATES_DIR", tmp_path / "user_templates")
+    monkeypatch.setattr(core, "fetch_official_templates", lambda timeout=120: {"zig": "*.zig-cache\n"})
+    fetched, new, total = core.update_user_templates()
+    assert fetched == 1
+    assert new == 1
+    assert "zig" in core.available_templates()
+    assert core.available_templates()["zig"] == "*.zig-cache\n"
