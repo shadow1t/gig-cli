@@ -73,9 +73,10 @@ def _cmd_init(args) -> int:
 
 
 def _cmd_update(args) -> int:
-    print("downloading official templates from github/gitignore ...", file=sys.stderr)
+    method = "git clone --depth 1" if args.via_git else "tarball"
+    print(f"downloading official templates from github/gitignore ({method}) ...", file=sys.stderr)
     try:
-        fetched, new, total = core.update_user_templates()
+        fetched, new, total = core.update_user_templates(via_git=args.via_git)
     except Exception as exc:
         print(f"error: update failed: {exc}", file=sys.stderr)
         return 1
@@ -114,6 +115,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_init.set_defaults(func=_cmd_init)
 
     p_update = sub.add_parser("update", help="download all official templates from github/gitignore (~/.gig-cli/templates)")
+    p_update.add_argument("--via-git", action="store_true", help="use 'git clone --depth 1' instead of the default tarball download")
     p_update.set_defaults(func=_cmd_update)
 
     return parser

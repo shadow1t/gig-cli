@@ -25,12 +25,13 @@ def test_generate_single():
     assert "# ===== python =====" in out
 
 
-def test_generate_combines_and_dedups():
+def test_generate_combines_and_dedups(monkeypatch, tmp_path):
+    monkeypatch.setattr(core, "USER_TEMPLATES_DIR", tmp_path / "empty_user_templates")
     out = core.generate(["python", "node"])
     assert "# ===== python =====" in out
     assert "# ===== node =====" in out
     assert "node_modules/" in out
-    # .DS_Store appears in both templates but must appear only once
+    # .DS_Store appears in both bundled templates but must appear only once
     assert out.count(".DS_Store") == 1
 
 
@@ -111,3 +112,29 @@ def test_update_user_templates(monkeypatch, tmp_path):
     assert new == 1
     assert "zig" in core.available_templates()
     assert core.available_templates()["zig"] == "*.zig-cache\n"
+
+
+def test_update_user_templates_via_git(monkeypatch, tmp_path):
+    monkeypatch.setattr(core, "USER_TEMPLATES_DIR", tmp_path / "user_templates")
+    called = {}
+
+    def fake_git_fetcher(timeout=120):
+        called["via_git"] = True
+        return {"zig": "*.zig-cache\n"}
+
+    monkeypatch.setattr(core, "fetch_official_templates_git", fake_git_fetcher)
+    core.update_user_templates(via_git=True)
+    assert called.get("via_git") is True
+
+
+def test_collect_templates_from_dir(tmp_path):
+    (tmp_path / "Python.gitignore").write_text("__pycache__/\n")
+    (tmp_path / "C++.gitignore").write_text("*.o\n")
+    global_dir = tmp_path / "Global"
+    global_dir.mkdir()
+    (global_dir / "macOS.gitignore").write_text(".DS_Store\n")
+    (tmp_path / "README.md").write_text("not a template")
+    templates = core._collect_templates_from_dir(tmp_path)
+    assert templates["python"] == "__pycache__/\n"
+    assert templates["cpp"] == "*.o\n"
+    assert templates["global-macos"] == ".DS_Store\n"

@@ -1,6 +1,9 @@
 import io
 import re
+import shutil
+import subprocess
 import tarfile
+import tempfile
 import urllib.request
 from pathlib import Path
 
@@ -8,6 +11,7 @@ BUNDLED_TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 USER_TEMPLATES_DIR = Path.home() / ".gig-cli" / "templates"
 
 GITHUB_GITIGNORE_TARBALL = "https://codeload.github.com/github/gitignore/tar.gz/refs/heads/main"
+GITHUB_GITIGNORE_REPO = "https://github.com/github/gitignore.git"
 
 NAME_NORMALIZATION = {
     "c++": "cpp",
@@ -121,6 +125,20 @@ def generate(langs: list) -> str:
     return "\n".join(out).rstrip() + "\n"
 
 
+def _collect_templates_from_dir(root: Path) -> dict:
+    templates = {}
+    for file in sorted(root.glob("*.gitignore")):
+        templates[_normalize_name(_strip_name(file.name))] = file.read_text(encoding="utf-8", errors="replace")
+    global_dir = root / "Global"
+    if global_dir.is_dir():
+        for file in sorted(global_dir.glob("*.gitignore")):
+            name = "global-" + _strip_name(file.name)
+            templates[_normalize_name(name)] = file.read_text(encoding="utf-8", errors="replace")
+    if not templates:
+        raise RuntimeError("no templates found")
+    return templates
+
+
 def fetch_official_templates(timeout: int = 120) -> dict:
     """Download ALL official templates from github/gitignore in a single tarball request."""
     request = urllib.request.Request(
@@ -128,31 +146,34 @@ def fetch_official_templates(timeout: int = 120) -> dict:
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
         data = response.read()
-    templates = {}
-    with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
-        for member in tar.getmembers():
-            if not member.isfile() or not member.name.endswith(".gitignore"):
-                continue
-            parts = member.name.split("/")
-            if len(parts) == 2:
-                name = _strip_name(parts[1])
-            elif len(parts) == 3 and parts[1] == "Global":
-                name = "global-" + _strip_name(parts[2])
-            else:
-                continue
-            name = _normalize_name(name)
-            fileobj = tar.extractfile(member)
-            if fileobj is None:
-                continue
-            templates[name] = fileobj.read().decode("utf-8", errors="replace")
-    if not templates:
-        raise RuntimeError("no templates found in downloaded archive")
-    return templates
+    with tempfile.TemporaryDirectory() as tmp:
+        with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+            tar.extractall(tmp, filter="data")
+        root = next(Path(tmp).iterdir())
+        return _collect_templates_from_dir(root)
 
 
-def update_user_templates(timeout: int = 120) -> tuple:
+def fetch_official_templates_git(timeout: int = 120) -> dict:
+    """Clone github/gitignore (shallow) and read its templates."""
+    if shutil.which("git") is None:
+        raise RuntimeError("git is not installed on this machine")
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp) / "gitignore"
+        result = subprocess.run(
+            ["git", "clone", "--depth", "1", "--quiet", GITHUB_GITIGNORE_REPO, str(target)],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"git clone failed: {result.stderr.strip()}")
+        return _collect_templates_from_dir(target)
+
+
+def update_user_templates(timeout: int = 120, via_git: bool = False) -> tuple:
     """Fetch official templates and store them as user templates. Returns (fetched, new, total_available)."""
-    fetched = fetch_official_templates(timeout=timeout)
+    fetcher = fetch_official_templates_git if via_git else fetch_official_templates
+    fetched = fetcher(timeout=timeout)
     USER_TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
     existing = {p.name for p in USER_TEMPLATES_DIR.glob("*.gitignore")}
     new_count = 0

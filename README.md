@@ -36,6 +36,9 @@ gig init
 
 # Download ALL official templates from github/gitignore (one request, ~230+ templates)
 gig update
+
+# Alternative: clone via git instead of the tarball download
+gig update --via-git
 ```
 
 ### Aliases
@@ -56,7 +59,7 @@ They override bundled templates with the same name.
 
 23 templates are bundled (Python, Node, Java, Go, Rust, C, C++, C#, Ruby, PHP, Swift, Kotlin, Dart, Docker, VSCode, JetBrains, macOS, Windows, Linux, Android, Unity, LaTeX, R).
 
-Run **`gig update`** once to download all ~230+ official templates from the MIT-licensed [github/gitignore](https://github.com/github/gitignore) collection into `~/.gig-cli/templates/` — a single tarball request, works with any internet connection, and custom templates override bundled ones.
+Run **`gig update`** once to download all ~230+ official templates from the MIT-licensed [github/gitignore](https://github.com/github/gitignore) collection into `~/.gig-cli/templates/` — a single tarball request (or `gig update --via-git` to use `git clone --depth 1` instead). Works with any internet connection, and custom templates override bundled ones.
 
 ## Development
 
