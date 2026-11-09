@@ -1,0 +1,14 @@
+# Docker
+.dockerignore
+compose.override.yaml
+.docker/
+
+# Local env
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store

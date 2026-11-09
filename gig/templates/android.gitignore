@@ -1,0 +1,19 @@
+# Gradle
+.gradle/
+build/
+*.iml
+
+# Android Studio
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# APK / AAB
+*.apk
+*.aab
+*.ap_
+
+# OS
+.DS_Store

@@ -1,0 +1,23 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of go build
+myapp
+/myapp
+
+# Workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store

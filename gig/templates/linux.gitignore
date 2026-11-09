@@ -1,0 +1,11 @@
+# Temporary files
+*~
+*.swp
+*.swo
+
+# Backup files
+*.bak
+
+# Editor
+.gedit
+.kate-swp

@@ -1,0 +1,24 @@
+# Documentation
+/doc/
+
+# Environment
+.env
+.env.local
+
+# Logs
+/log/*
+*.log
+
+# Dependencies
+/vendor/bundle/
+
+# Test / coverage
+/coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
