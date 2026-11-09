@@ -61,11 +61,29 @@ They override bundled templates with the same name.
 
 Run **`gig update`** to refresh them with the latest upstream version (single tarball request, or `gig update --via-git` to use `git clone --depth 1` instead); downloaded templates go to `~/.gig-cli/templates/` and override bundled ones.
 
+## Web UI
+
+A static single-page app lives in [`web/`](web/) — search 248 templates, multi-select, live deduplicated preview, copy/download, shareable links, dark mode. No server needed.
+
+It is deployed automatically to **GitHub Pages** on every push to `main` (see `.github/workflows/deploy-pages.yml`), or run locally:
+
+```bash
+python -m http.server -d web 8000
+# open http://localhost:8000
+```
+
+`web/templates.js` is generated from the bundled templates:
+
+```bash
+python scripts/build_templates_js.py
+```
+
 ## Development
 
 ```bash
 pip install -e . pytest
-pytest
+pytest                 # Python tests
+node tests/test_web.js # web UI logic tests
 ```
 
 ## License

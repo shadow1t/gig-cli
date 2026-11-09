@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gig-cli — .gitignore Generator</title>
+  <meta name="description" content="Fast, offline-friendly .gitignore generator with 248 language templates. Pick languages, preview, copy." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>⚡ gig-cli</h1>
+    <p class="tagline">.gitignore generator — <span id="tpl-count"></span> templates</p>
+    <button id="theme-toggle" title="Toggle dark mode">🌙</button>
+  </header>
+
+  <main>
+    <section class="picker">
+      <input id="search" type="search" placeholder="Search languages... (e.g. python, flutter)" autocomplete="off" />
+      <div class="actions-row">
+        <button id="select-all">Select all</button>
+        <button id="clear-all">Clear</button>
+        <span id="selected-count" class="muted"></span>
+      </div>
+      <ul id="template-list" class="template-list"></ul>
+    </section>
+
+    <section class="preview">
+      <div class="actions-row">
+        <button id="copy-btn" class="primary">📋 Copy</button>
+        <button id="download-btn">⬇ Download .gitignore</button>
+        <button id="share-btn">🔗 Copy share link</button>
+        <span id="copy-status" class="muted"></span>
+      </div>
+      <pre id="preview"><code></code></pre>
+    </section>
+  </main>
+
+  <footer>
+    <p>CLI: <code>pip install git+https://github.com/shadow1t/gig-cli.git</code> ·
+      <a href="https://github.com/shadow1t/gig-cli">GitHub</a></p>
+  </footer>
+
+  <script src="templates.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
