@@ -34,11 +34,6 @@ gig gen docker -o --append
 # Interactive mode: pick templates by number
 gig init
 
-# Download ALL official templates from github/gitignore (one request, ~230+ templates)
-gig update
-
-# Alternative: clone via git instead of the tarball download
-gig update --via-git
 ```
 
 ### Aliases
@@ -57,9 +52,9 @@ They override bundled templates with the same name.
 
 ## Templates
 
-**All 248 official templates are bundled** in `gig/templates/` (from the MIT-licensed [github/gitignore](https://github.com/github/gitignore) collection) — the tool works fully offline out of the box.
+**All 248 templates are bundled** in `gig/templates/` — the tool is fully self-contained and offline, no remote links needed.
 
-Run **`gig update`** to refresh them with the latest upstream version (single tarball request, or `gig update --via-git` to use `git clone --depth 1` instead); downloaded templates go to `~/.gig-cli/templates/` and override bundled ones.
+To add your own template, drop a `*.gitignore` file into `~/.gig-cli/templates/` — it overrides the bundled one with the same name.
 
 ## Web UI
 
